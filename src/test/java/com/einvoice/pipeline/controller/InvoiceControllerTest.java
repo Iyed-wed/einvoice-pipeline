@@ -38,20 +38,54 @@ class InvoiceControllerTest {
     }
 
     @Test
-    void structurallyInvalidInvoiceIsRejectedWith400() {
+    void structurallyInvalidInvoiceIsRejectedWith400AndStructuredBody() {
         Invoice base = InvoiceFixtures.validInvoice();
         Invoice missingNumber = new Invoice(null, base.issueDate(), base.dueDate(), base.currencyCode(),
                 base.seller(), base.buyer(), base.lines(),
                 base.totalWithoutVat(), base.totalVat(), base.totalWithVat());
 
-        ResponseEntity<byte[]> response = post(missingNumber);
+        ResponseEntity<String> response = postForProblem(missingNumber);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(response.getHeaders().getContentType())
+                .isEqualTo(MediaType.APPLICATION_PROBLEM_JSON);
+        assertThat(response.getBody())
+                .contains("Invoice structure is invalid")
+                .contains("invoiceNumber")
+                .contains("BT-1")
+                .doesNotContain("Exception")
+                .doesNotContain("at com.einvoice"); // no stack trace leaks to the client
+    }
+
+    @Test
+    void businessRuleViolationIsRejectedWith422AndRuleReferences() {
+        Invoice base = InvoiceFixtures.validInvoice();
+        // Well-formed but arithmetically wrong: VAT and grand total do not add up
+        Invoice incoherent = new Invoice(base.invoiceNumber(), base.issueDate(), base.dueDate(),
+                base.currencyCode(), base.seller(), base.buyer(), base.lines(),
+                base.totalWithoutVat(), new java.math.BigDecimal("37.00"), new java.math.BigDecimal("310.00"));
+
+        ResponseEntity<String> response = postForProblem(incoherent);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY);
+        assertThat(response.getHeaders().getContentType())
+                .isEqualTo(MediaType.APPLICATION_PROBLEM_JSON);
+        assertThat(response.getBody())
+                .contains("EN 16931")
+                .contains("BR-CO-14")
+                .contains("BR-CO-15")
+                .doesNotContain("at com.einvoice");
     }
 
     private ResponseEntity<byte[]> post(Invoice invoice) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         return restTemplate.postForEntity("/api/invoices", new HttpEntity<>(invoice, headers), byte[].class);
+    }
+
+    private ResponseEntity<String> postForProblem(Invoice invoice) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        return restTemplate.postForEntity("/api/invoices", new HttpEntity<>(invoice, headers), String.class);
     }
 }

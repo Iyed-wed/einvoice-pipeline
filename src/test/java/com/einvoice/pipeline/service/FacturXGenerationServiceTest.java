@@ -1,6 +1,7 @@
 package com.einvoice.pipeline.service;
 
 import com.einvoice.pipeline.model.InvoiceFixtures;
+import com.einvoice.pipeline.validation.En16931Validator;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mustangproject.ZUGFeRD.ZUGFeRDImporter;
@@ -22,7 +23,8 @@ class FacturXGenerationServiceTest {
 
     @BeforeAll
     static void generateOnce() {
-        FacturXGenerationService service = new FacturXGenerationService(new InvoicePdfRenderer());
+        FacturXGenerationService service =
+                new FacturXGenerationService(new InvoicePdfRenderer(), new En16931Validator());
         facturX = service.generateFacturX(InvoiceFixtures.validInvoice());
     }
 

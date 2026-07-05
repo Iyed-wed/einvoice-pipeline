@@ -3,9 +3,6 @@ package com.einvoice.pipeline.service;
 import com.einvoice.pipeline.model.Invoice;
 import com.einvoice.pipeline.model.InvoiceLine;
 import com.einvoice.pipeline.model.Party;
-import com.einvoice.pipeline.validation.En16931Validator;
-import com.einvoice.pipeline.validation.InvoiceValidationException;
-import com.einvoice.pipeline.validation.ValidationError;
 import org.mustangproject.Item;
 import org.mustangproject.Product;
 import org.mustangproject.TradeParty;
@@ -19,7 +16,6 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
-import java.util.List;
 
 /**
  * Generates a Factur-X invoice: a PDF/A-3 file with the EN 16931 CII XML
@@ -36,26 +32,12 @@ public class FacturXGenerationService {
     private static final String FACTURX_PROFILE = "EN16931";
 
     private final InvoicePdfRenderer pdfRenderer;
-    private final En16931Validator validator;
 
-    public FacturXGenerationService(InvoicePdfRenderer pdfRenderer, En16931Validator validator) {
+    public FacturXGenerationService(InvoicePdfRenderer pdfRenderer) {
         this.pdfRenderer = pdfRenderer;
-        this.validator = validator;
     }
 
-    /**
-     * Validates the invoice against the EN 16931 business rules, then generates
-     * the Factur-X file. An invoice that fails validation is never rendered:
-     * no file may exist for a non-conformant invoice.
-     *
-     * @throws InvoiceValidationException if any EN 16931 business rule is violated
-     */
     public byte[] generateFacturX(Invoice invoice) {
-        List<ValidationError> errors = validator.validate(invoice);
-        if (!errors.isEmpty()) {
-            throw new InvoiceValidationException(invoice.invoiceNumber(), errors);
-        }
-
         byte[] visualPdf = pdfRenderer.render(invoice);
         try {
             IZUGFeRDExporter exporter = new ZUGFeRDExporterFromA1()

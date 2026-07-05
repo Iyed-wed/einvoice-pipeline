@@ -1,11 +1,13 @@
 package com.einvoice.pipeline.controller;
 
+import com.einvoice.pipeline.TestcontainersConfiguration;
 import com.einvoice.pipeline.model.Invoice;
 import com.einvoice.pipeline.model.InvoiceFixtures;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -21,6 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * (serialization, Bean Validation and content negotiation included).
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@Import(TestcontainersConfiguration.class)
 class InvoiceControllerTest {
 
     @Autowired

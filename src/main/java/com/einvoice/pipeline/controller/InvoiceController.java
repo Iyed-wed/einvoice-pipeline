@@ -1,7 +1,7 @@
 package com.einvoice.pipeline.controller;
 
 import com.einvoice.pipeline.model.Invoice;
-import com.einvoice.pipeline.service.FacturXGenerationService;
+import com.einvoice.pipeline.service.InvoiceProcessingService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -15,15 +15,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/invoices")
 public class InvoiceController {
 
-    private final FacturXGenerationService generationService;
+    private final InvoiceProcessingService processingService;
 
-    public InvoiceController(FacturXGenerationService generationService) {
-        this.generationService = generationService;
+    public InvoiceController(InvoiceProcessingService processingService) {
+        this.processingService = processingService;
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_PDF_VALUE)
     public ResponseEntity<byte[]> generateInvoice(@Valid @RequestBody Invoice invoice) {
-        byte[] facturX = generationService.generateFacturX(invoice);
+        byte[] facturX = processingService.process(invoice);
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_PDF)
                 .header(HttpHeaders.CONTENT_DISPOSITION,

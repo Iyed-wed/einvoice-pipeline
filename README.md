@@ -18,20 +18,9 @@ La différenciation ne vient pas de la génération XML (déjà commoditisée) m
 
 ### Architecture en un coup d'œil
 
-```
-                     ┌─────────────────────────────────────────────┐
- Formulaire web ──▶  │                                             │
- Import CSV     ──▶  │   Validation EN 16931 ─▶ Génération Factur-X │ ──▶ PDF/A-3
- SAP (OData/RFC)──▶  │            │                    │           │      (+ XML CII)
-                     │            ▼                    ▼           │
-                     │      Trace d'audit (PostgreSQL)             │
-                     │            │                                │
-                     │            ▼                                │
-                     │   Métriques Micrometer ─▶ /actuator/prometheus
-                     └─────────────────────────────────────────────┘
-                                   │                       │
-                              Prometheus ───────────▶  Grafana
-```
+<p align="center">
+  <img src="architecture.svg" alt="einvoice-pipeline — architecture" width="920"/>
+</p>
 
 Les **trois portes d'entrée** convergent vers le **même moteur** (`InvoiceProcessingService`) : formulaire web (cas « pas d'ERP »), import CSV (cas « ERP autre que SAP »), et passerelle SAP (approche OData / BAPI-RFC documentée).
 
@@ -103,20 +92,9 @@ The differentiator is not the XML generation (already a commodity) but the **eng
 
 ### Architecture at a glance
 
-```
-                     ┌─────────────────────────────────────────────┐
- Web form       ──▶  │                                             │
- CSV import     ──▶  │   EN 16931 validation ─▶ Factur-X generation │ ──▶ PDF/A-3
- SAP (OData/RFC)──▶  │            │                    │           │      (+ CII XML)
-                     │            ▼                    ▼           │
-                     │        Audit trail (PostgreSQL)             │
-                     │            │                                │
-                     │            ▼                                │
-                     │   Micrometer metrics ─▶ /actuator/prometheus
-                     └─────────────────────────────────────────────┘
-                                   │                       │
-                              Prometheus ───────────▶  Grafana
-```
+<p align="center">
+  <img src="architecture.svg" alt="einvoice-pipeline — architecture" width="920"/>
+</p>
 
 The **three entry points** converge on the **same engine** (`InvoiceProcessingService`): web form (no-ERP case), CSV import (non-SAP ERP case), and an SAP gateway (documented OData / BAPI-RFC approach).
 

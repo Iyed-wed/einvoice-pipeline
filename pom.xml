@@ -49,6 +49,13 @@
             <version>2.17.0</version>
         </dependency>
 
+        <!-- OpenAPI 3 spec + Swagger UI, generated from the controllers -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>2.8.9</version>
+        </dependency>
+
         <!-- Persistence: audit trail of processed invoices -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

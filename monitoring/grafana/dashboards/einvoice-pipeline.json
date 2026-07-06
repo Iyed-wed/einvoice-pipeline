@@ -1,0 +1,86 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "graphTooltip": 0,
+  "schemaVersion": 39,
+  "title": "einvoice-pipeline — Invoice processing",
+  "uid": "einvoice-pipeline",
+  "tags": ["einvoice", "factur-x"],
+  "time": { "from": "now-30m", "to": "now" },
+  "refresh": "5s",
+  "templating": { "list": [] },
+  "panels": [
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "Invoices generated (total)",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "h": 6, "w": 6, "x": 0, "y": 0 },
+      "fieldConfig": { "defaults": { "color": { "mode": "fixed", "fixedColor": "green" }, "unit": "short" }, "overrides": [] },
+      "options": { "colorMode": "value", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "targets": [
+        { "refId": "A", "expr": "sum(einvoice_invoices_generated_total)", "legendFormat": "generated" }
+      ]
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "Invoices rejected (total)",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "h": 6, "w": 6, "x": 6, "y": 0 },
+      "fieldConfig": { "defaults": { "color": { "mode": "fixed", "fixedColor": "red" }, "unit": "short" }, "overrides": [] },
+      "options": { "colorMode": "value", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "targets": [
+        { "refId": "A", "expr": "sum(einvoice_invoices_rejected_total)", "legendFormat": "rejected" }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "Average processing time",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "h": 6, "w": 6, "x": 12, "y": 0 },
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "unit": "s", "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null }, { "color": "yellow", "value": 1 }, { "color": "red", "value": 3 } ] } }, "overrides": [] },
+      "options": { "colorMode": "value", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "targets": [
+        { "refId": "A", "expr": "sum(rate(einvoice_processing_duration_seconds_sum[5m])) / clamp_min(sum(rate(einvoice_processing_duration_seconds_count[5m])), 0.0001)", "legendFormat": "avg" }
+      ]
+    },
+    {
+      "id": 4,
+      "type": "timeseries",
+      "title": "Throughput (invoices/s)",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 6 },
+      "fieldConfig": { "defaults": { "custom": { "drawStyle": "line", "fillOpacity": 15 }, "unit": "reqps" }, "overrides": [] },
+      "targets": [
+        { "refId": "A", "expr": "sum(rate(einvoice_invoices_generated_total[1m]))", "legendFormat": "generated/s" },
+        { "refId": "B", "expr": "sum(rate(einvoice_invoices_rejected_total[1m]))", "legendFormat": "rejected/s" }
+      ]
+    },
+    {
+      "id": 5,
+      "type": "timeseries",
+      "title": "Processing latency (p50 / p95)",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 6 },
+      "fieldConfig": { "defaults": { "custom": { "drawStyle": "line", "fillOpacity": 10 }, "unit": "s" }, "overrides": [] },
+      "targets": [
+        { "refId": "A", "expr": "einvoice_processing_duration_seconds{quantile=\"0.5\"}", "legendFormat": "p50" },
+        { "refId": "B", "expr": "einvoice_processing_duration_seconds{quantile=\"0.95\"}", "legendFormat": "p95" }
+      ]
+    },
+    {
+      "id": 6,
+      "type": "barchart",
+      "title": "Rejections by EN 16931 rule",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 14 },
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
+      "options": { "orientation": "horizontal" },
+      "targets": [
+        { "refId": "A", "expr": "sum by (reason) (einvoice_invoices_rejected_total)", "legendFormat": "{{reason}}" }
+      ]
+    }
+  ]
+}

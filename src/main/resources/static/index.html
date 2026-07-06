@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>einvoice-pipeline — Manual invoice entry</title>
+    <style>
+        :root { font-family: system-ui, sans-serif; }
+        body { max-width: 900px; margin: 2rem auto; padding: 0 1rem; color: #1a1a2e; }
+        h1 { font-size: 1.4rem; }
+        p.lead { color: #555; }
+        fieldset { border: 1px solid #ddd; border-radius: 8px; margin-bottom: 1rem; padding: 1rem; }
+        legend { font-weight: 600; padding: 0 .4rem; }
+        label { display: block; font-size: .85rem; margin: .4rem 0 .15rem; }
+        input { width: 100%; padding: .45rem; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: .6rem; }
+        table { width: 100%; border-collapse: collapse; margin-top: .5rem; }
+        th, td { padding: .3rem; text-align: left; }
+        th { font-size: .75rem; color: #555; }
+        button { padding: .55rem 1rem; border: 0; border-radius: 6px; cursor: pointer; font-weight: 600; }
+        .primary { background: #1a1a2e; color: #fff; }
+        .ghost { background: #eee; }
+        #status { margin-top: 1rem; padding: .6rem; border-radius: 6px; display: none; }
+        .ok { background: #e6f7ed; color: #087443; }
+        .err { background: #fdecea; color: #b3261e; white-space: pre-wrap; }
+        .totals { font-weight: 600; text-align: right; margin-top: .5rem; }
+    </style>
+</head>
+<body>
+    <h1>einvoice-pipeline — Manual invoice entry</h1>
+    <p class="lead">No-ERP entry point: fill in the invoice, submit, and download the Factur-X (PDF/A-3) file.
+        Totals are computed from the lines and sent to the same <code>/api/invoices</code> engine.</p>
+
+    <form id="invoice-form">
+        <fieldset>
+            <legend>Invoice</legend>
+            <div class="grid">
+                <div><label>Number</label><input name="invoiceNumber" value="FA-WEB-0001" required></div>
+                <div><label>Issue date</label><input name="issueDate" type="date" value="2026-07-06" required></div>
+                <div><label>Due date</label><input name="dueDate" type="date" value="2026-08-05"></div>
+                <div><label>Currency</label><input name="currencyCode" value="EUR" required></div>
+            </div>
+        </fieldset>
+
+        <fieldset>
+            <legend>Seller</legend>
+            <div class="grid">
+                <div><label>Name</label><input name="sellerName" value="ACME Services SARL" required></div>
+                <div><label>VAT ID</label><input name="sellerVat" value="FR12345678901"></div>
+                <div><label>Street</label><input name="sellerStreet" value="12 rue de la Paix"></div>
+                <div><label>Postal code</label><input name="sellerPostalCode" value="75002"></div>
+                <div><label>City</label><input name="sellerCity" value="Paris"></div>
+                <div><label>Country</label><input name="sellerCountry" value="FR" required></div>
+            </div>
+        </fieldset>
+
+        <fieldset>
+            <legend>Buyer</legend>
+            <div class="grid">
+                <div><label>Name</label><input name="buyerName" value="Client Corp SA" required></div>
+                <div><label>VAT ID</label><input name="buyerVat" value="FR98765432109"></div>
+                <div><label>Street</label><input name="buyerStreet" value="8 avenue des Champs"></div>
+                <div><label>Postal code</label><input name="buyerPostalCode" value="75008"></div>
+                <div><label>City</label><input name="buyerCity" value="Paris"></div>
+                <div><label>Country</label><input name="buyerCountry" value="FR" required></div>
+            </div>
+        </fieldset>
+
+        <fieldset>
+            <legend>Lines</legend>
+            <table id="lines">
+                <thead>
+                    <tr><th>Description</th><th>Quantity</th><th>Unit price</th><th>VAT %</th><th></th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><input name="description" value="Consulting services"></td>
+                        <td><input name="quantity" type="number" step="0.01" value="2"></td>
+                        <td><input name="unitPrice" type="number" step="0.01" value="100.00"></td>
+                        <td><input name="vatRate" type="number" step="0.01" value="20.00"></td>
+                        <td><button type="button" class="ghost" onclick="removeLine(this)">✕</button></td>
+                    </tr>
+                    <tr>
+                        <td><input name="description" value="Support package"></td>
+                        <td><input name="quantity" type="number" step="0.01" value="1"></td>
+                        <td><input name="unitPrice" type="number" step="0.01" value="50.00"></td>
+                        <td><input name="vatRate" type="number" step="0.01" value="20.00"></td>
+                        <td><button type="button" class="ghost" onclick="removeLine(this)">✕</button></td>
+                    </tr>
+                </tbody>
+            </table>
+            <button type="button" class="ghost" onclick="addLine()">+ Add line</button>
+            <div class="totals" id="totals"></div>
+        </fieldset>
+
+        <button type="submit" class="primary">Generate Factur-X</button>
+    </form>
+
+    <div id="status"></div>
+
+    <script>
+        const round2 = n => Math.round((n + Number.EPSILON) * 100) / 100;
+
+        function addLine() {
+            const row = document.querySelector('#lines tbody tr').cloneNode(true);
+            row.querySelectorAll('input').forEach(i => { if (i.type === 'number') i.value = ''; else i.value = ''; });
+            document.querySelector('#lines tbody').appendChild(row);
+            recomputeTotals();
+        }
+        function removeLine(btn) {
+            const rows = document.querySelectorAll('#lines tbody tr');
+            if (rows.length > 1) btn.closest('tr').remove();
+            recomputeTotals();
+        }
+
+        function collectLines() {
+            return [...document.querySelectorAll('#lines tbody tr')].map(tr => ({
+                description: tr.querySelector('[name=description]').value,
+                quantity: parseFloat(tr.querySelector('[name=quantity]').value || '0'),
+                unitPrice: parseFloat(tr.querySelector('[name=unitPrice]').value || '0'),
+                vatRate: parseFloat(tr.querySelector('[name=vatRate]').value || '0')
+            }));
+        }
+
+        // Mirrors InvoiceAmounts on the server: VAT summed per rate category, rounded to 2 decimals.
+        function computeTotals(lines) {
+            const net = round2(lines.reduce((s, l) => s + l.quantity * l.unitPrice, 0));
+            const baseByRate = {};
+            lines.forEach(l => { baseByRate[l.vatRate] = (baseByRate[l.vatRate] || 0) + l.quantity * l.unitPrice; });
+            const vat = round2(Object.entries(baseByRate).reduce((s, [rate, base]) => s + round2(base * rate / 100), 0));
+            return { totalWithoutVat: net, totalVat: vat, totalWithVat: round2(net + vat) };
+        }
+
+        function recomputeTotals() {
+            const t = computeTotals(collectLines());
+            document.getElementById('totals').textContent =
+                `Total excl. VAT: ${t.totalWithoutVat.toFixed(2)}  |  VAT: ${t.totalVat.toFixed(2)}  |  Total incl. VAT: ${t.totalWithVat.toFixed(2)}`;
+        }
+
+        document.addEventListener('input', e => { if (e.target.closest('#lines')) recomputeTotals(); });
+        recomputeTotals();
+
+        document.getElementById('invoice-form').addEventListener('submit', async e => {
+            e.preventDefault();
+            const f = e.target;
+            const val = n => f.elements[n].value;
+            const lines = collectLines();
+            const totals = computeTotals(lines);
+            const payload = {
+                invoiceNumber: val('invoiceNumber'),
+                issueDate: val('issueDate'),
+                dueDate: val('dueDate') || null,
+                currencyCode: val('currencyCode'),
+                seller: { name: val('sellerName'), vatId: val('sellerVat') || null,
+                    address: { street: val('sellerStreet'), postalCode: val('sellerPostalCode'), city: val('sellerCity'), countryCode: val('sellerCountry') } },
+                buyer: { name: val('buyerName'), vatId: val('buyerVat') || null,
+                    address: { street: val('buyerStreet'), postalCode: val('buyerPostalCode'), city: val('buyerCity'), countryCode: val('buyerCountry') } },
+                lines,
+                ...totals
+            };
+
+            const status = document.getElementById('status');
+            status.style.display = 'block';
+            status.className = '';
+            status.textContent = 'Generating…';
+
+            try {
+                const res = await fetch('/api/invoices', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (res.ok) {
+                    const blob = await res.blob();
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = payload.invoiceNumber.replace(/[^A-Za-z0-9._-]/g, '_') + '.pdf';
+                    a.click();
+                    URL.revokeObjectURL(url);
+                    status.className = 'ok';
+                    status.textContent = '✓ Factur-X generated and downloaded.';
+                } else {
+                    const problem = await res.json();
+                    status.className = 'err';
+                    status.textContent = `✗ ${res.status} — ${problem.title || 'Error'}\n` +
+                        (problem.errors ? problem.errors.map(er => `• [${er.rule}] ${er.field}: ${er.message}`).join('\n') : (problem.detail || ''));
+                }
+            } catch (err) {
+                status.className = 'err';
+                status.textContent = '✗ Network error: ' + err.message;
+            }
+        });
+    </script>
+</body>
+</html>

@@ -56,6 +56,13 @@
             <version>2.8.9</version>
         </dependency>
 
+        <!-- Robust CSV parsing (quoting, embedded separators) for the CSV entry point -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-csv</artifactId>
+            <version>1.12.0</version>
+        </dependency>
+
         <!-- Persistence: audit trail of processed invoices -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

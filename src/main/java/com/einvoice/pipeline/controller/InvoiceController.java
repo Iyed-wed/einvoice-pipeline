@@ -1,6 +1,7 @@
 package com.einvoice.pipeline.controller;
 
 import com.einvoice.pipeline.model.Invoice;
+import com.einvoice.pipeline.service.CsvInvoiceParser;
 import com.einvoice.pipeline.service.InvoiceProcessingService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -23,9 +24,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class InvoiceController {
 
     private final InvoiceProcessingService processingService;
+    private final CsvInvoiceParser csvInvoiceParser;
 
-    public InvoiceController(InvoiceProcessingService processingService) {
+    public InvoiceController(InvoiceProcessingService processingService, CsvInvoiceParser csvInvoiceParser) {
         this.processingService = processingService;
+        this.csvInvoiceParser = csvInvoiceParser;
     }
 
     @Operation(
@@ -47,6 +50,33 @@ public class InvoiceController {
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_PDF_VALUE)
     public ResponseEntity<byte[]> generateInvoice(@Valid @RequestBody Invoice invoice) {
         byte[] facturX = processingService.process(invoice);
+        return pdfResponse(invoice, facturX);
+    }
+
+    @Operation(
+            summary = "Generate a Factur-X invoice from a CSV export",
+            description = """
+                    Entry point for ERP systems that export invoices as CSV (one row per line, \
+                    invoice-header columns repeated). The rows are mapped to a canonical invoice \
+                    — totals computed from the lines — and run through the same validation and \
+                    generation engine as the JSON endpoint.""")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Factur-X PDF/A-3 file",
+                    content = @Content(mediaType = MediaType.APPLICATION_PDF_VALUE,
+                            schema = @Schema(type = "string", format = "binary"))),
+            @ApiResponse(responseCode = "400", description = "Malformed CSV (missing column, unparsable value)",
+                    content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)),
+            @ApiResponse(responseCode = "422", description = "Mapped invoice violates EN 16931 business rules",
+                    content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE))
+    })
+    @PostMapping(path = "/import-csv", consumes = "text/csv", produces = MediaType.APPLICATION_PDF_VALUE)
+    public ResponseEntity<byte[]> importCsv(@RequestBody String csv) {
+        Invoice invoice = csvInvoiceParser.parse(csv);
+        byte[] facturX = processingService.process(invoice);
+        return pdfResponse(invoice, facturX);
+    }
+
+    private static ResponseEntity<byte[]> pdfResponse(Invoice invoice, byte[] facturX) {
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_PDF)
                 .header(HttpHeaders.CONTENT_DISPOSITION,

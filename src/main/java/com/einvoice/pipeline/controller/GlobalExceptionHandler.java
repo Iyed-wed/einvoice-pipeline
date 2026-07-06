@@ -1,5 +1,6 @@
 package com.einvoice.pipeline.controller;
 
+import com.einvoice.pipeline.service.CsvImportException;
 import com.einvoice.pipeline.service.FacturXGenerationException;
 import com.einvoice.pipeline.validation.InvoiceValidationException;
 import com.einvoice.pipeline.validation.ValidationError;
@@ -40,6 +41,16 @@ public class GlobalExceptionHandler {
         problem.setTitle("Invoice structure is invalid");
         problem.setType(URI.create("urn:einvoice-pipeline:problem:invalid-structure"));
         problem.setProperty("errors", errors);
+        return problem;
+    }
+
+    /** CSV upload that cannot be mapped to an invoice (missing column, bad value). */
+    @ExceptionHandler(CsvImportException.class)
+    public ProblemDetail handleCsvImportError(CsvImportException e) {
+        ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        problem.setTitle("CSV import failed");
+        problem.setType(URI.create("urn:einvoice-pipeline:problem:invalid-csv"));
+        problem.setDetail(e.getMessage());
         return problem;
     }
 

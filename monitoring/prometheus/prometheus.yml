@@ -1,0 +1,11 @@
+# Prometheus scrapes the application's Micrometer endpoint. Inside the compose
+# network the app is reachable by its service name "app".
+global:
+  scrape_interval: 5s
+  evaluation_interval: 5s
+
+scrape_configs:
+  - job_name: einvoice-pipeline
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ["app:8080"]

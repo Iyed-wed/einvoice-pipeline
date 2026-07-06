@@ -1,0 +1,13 @@
+# Auto-provisioned Prometheus datasource so Grafana works on first start with
+# no manual setup. "prometheus" is the compose service name.
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    type: prometheus
+    # Fixed uid so the provisioned dashboard can reference this datasource reliably.
+    uid: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    editable: false

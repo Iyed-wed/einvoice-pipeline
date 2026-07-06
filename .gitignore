@@ -18,4 +18,4 @@ Thumbs.db
 *.log
 
 ## Locally generated artifacts (manual curl output)
-facture.pdf
+facture*.pdf

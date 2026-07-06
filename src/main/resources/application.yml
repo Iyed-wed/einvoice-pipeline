@@ -15,7 +15,12 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info
+        include: health,info,metrics,prometheus
   endpoint:
     health:
       show-details: always
+  metrics:
+    tags:
+      # Every metric carries the application name, so a single Prometheus/Grafana
+      # can host several services without label collisions.
+      application: einvoice-pipeline

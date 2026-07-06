@@ -16,3 +16,7 @@ Thumbs.db
 
 ## Logs
 *.log
+facture.pdf
+
+## Locally generated artifacts
+facture.pdf

@@ -14,11 +14,9 @@ The differentiator is not the XML generation (already a commodity) but the **eng
 
 ## Architecture at a glance
 
-<p align="center">
-  <img src="architecture.svg" alt="einvoice-pipeline — architecture" width="920"/>
-</p>
+![Architecture](docs/architecture.svg)
 
-The **three entry points** converge on the **same engine** (`InvoiceProcessingService`): web form (no-ERP case), CSV import (non-SAP ERP case), and an SAP gateway (documented OData / BAPI-RFC approach).
+The **three entry points** converge on the **same engine** (`InvoiceProcessingService`): web form (no-ERP case), CSV import (generic ERP export), and an **ERP gateway** for SAP, Oracle, Microsoft Dynamics or Sage (documented OData / RFC / REST approach).
 
 ## Quick start
 

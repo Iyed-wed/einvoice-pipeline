@@ -1,0 +1,185 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1480" height="820" viewBox="0 0 1480 820" font-family="'Segoe UI', system-ui, -apple-system, Helvetica, Arial, sans-serif" role="img" aria-label="einvoice-pipeline architecture diagram">
+  <defs>
+    <linearGradient id="canvas" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#eef2f7"/>
+    </linearGradient>
+    <linearGradient id="appGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#f5f8ff"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="3" stdDeviation="6" flood-color="#0f172a" flood-opacity="0.14"/>
+    </filter>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#0f172a" flood-opacity="0.10"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#94a3b8"/>
+    </marker>
+  </defs>
+
+  <!-- background -->
+  <rect x="1" y="1" width="1478" height="818" rx="20" fill="url(#canvas)" stroke="#dbe2ea" stroke-width="2"/>
+
+  <!-- title -->
+  <text x="48" y="58" font-size="30" font-weight="700" fill="#0f172a">einvoice-pipeline</text>
+  <text x="48" y="86" font-size="16" fill="#64748b">Factur-X / EN 16931 generation &amp; validation engine — full observability stack</text>
+
+  <!-- ============ INPUTS ============ -->
+  <text x="70" y="150" font-size="13" font-weight="700" letter-spacing="2" fill="#94a3b8">INPUTS</text>
+
+  <!-- Web form -->
+  <g filter="url(#softShadow)">
+    <rect x="70" y="176" width="240" height="92" rx="14" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5"/>
+  </g>
+  <g transform="translate(90,199)">
+    <rect width="46" height="46" rx="11" fill="#6366f1"/>
+    <g transform="translate(0,0)">
+      <rect x="10" y="12" width="26" height="22" rx="2.5" fill="none" stroke="#fff" stroke-width="2.5"/>
+      <line x1="10" y1="19" x2="36" y2="19" stroke="#fff" stroke-width="2.5"/>
+      <circle cx="14" cy="15.5" r="1.3" fill="#fff"/>
+    </g>
+  </g>
+  <text x="150" y="214" font-size="17" font-weight="600" fill="#0f172a">Web form</text>
+  <text x="150" y="236" font-size="13" fill="#64748b">no-ERP case</text>
+
+  <!-- CSV -->
+  <g filter="url(#softShadow)">
+    <rect x="70" y="296" width="240" height="92" rx="14" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5"/>
+  </g>
+  <g transform="translate(90,319)">
+    <rect width="46" height="46" rx="11" fill="#0ea5e9"/>
+    <path d="M14 10 h13 l7 7 v19 a1 1 0 0 1 -1 1 h-19 a1 1 0 0 1 -1 -1 z" fill="none" stroke="#fff" stroke-width="2.4"/>
+    <path d="M27 10 v7 h7" fill="none" stroke="#fff" stroke-width="2.4"/>
+    <line x1="17" y1="25" x2="31" y2="25" stroke="#fff" stroke-width="2"/>
+    <line x1="17" y1="30" x2="31" y2="30" stroke="#fff" stroke-width="2"/>
+  </g>
+  <text x="150" y="334" font-size="17" font-weight="600" fill="#0f172a">CSV import</text>
+  <text x="150" y="356" font-size="13" fill="#64748b">generic ERP export</text>
+
+  <!-- ERP gateway (future) -->
+  <g filter="url(#softShadow)">
+    <rect x="70" y="416" width="240" height="104" rx="14" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="6 5"/>
+  </g>
+  <g transform="translate(90,441)">
+    <rect width="46" height="46" rx="11" fill="#475569"/>
+    <rect x="13" y="12" width="20" height="24" rx="1.5" fill="#fff"/>
+    <g fill="#475569">
+      <rect x="16" y="15" width="4" height="4"/><rect x="22" y="15" width="4" height="4"/><rect x="27.5" y="15" width="3.5" height="4"/>
+      <rect x="16" y="22" width="4" height="4"/><rect x="22" y="22" width="4" height="4"/><rect x="27.5" y="22" width="3.5" height="4"/>
+      <rect x="21" y="29" width="5" height="7"/>
+    </g>
+  </g>
+  <text x="150" y="452" font-size="17" font-weight="600" fill="#0f172a">ERP gateway</text>
+  <text x="150" y="474" font-size="12.5" fill="#64748b">SAP · Oracle · Dynamics · Sage</text>
+  <text x="150" y="493" font-size="11.5" fill="#94a3b8" font-style="italic">OData / RFC / REST — future</text>
+
+  <!-- ============ SPRING BOOT APP ============ -->
+  <g filter="url(#shadow)">
+    <rect x="410" y="238" width="360" height="300" rx="18" fill="url(#appGrad)" stroke="#c7d2fe" stroke-width="2"/>
+  </g>
+  <!-- header -->
+  <g transform="translate(438,266)">
+    <rect width="52" height="52" rx="13" fill="#6db33f"/>
+    <path d="M15 38 C 12 23 26 13 41 14 C 40 28 30 39 15 38 Z" fill="#fff"/>
+    <path d="M17 36 C 26 30 33 24 37 17" fill="none" stroke="#6db33f" stroke-width="2.6" stroke-linecap="round"/>
+  </g>
+  <text x="504" y="288" font-size="21" font-weight="700" fill="#0f172a">Spring Boot Application</text>
+  <text x="504" y="310" font-size="13.5" fill="#64748b">InvoiceProcessingService — Java 21</text>
+
+  <!-- inner: validation -->
+  <rect x="438" y="340" width="304" height="70" rx="12" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5"/>
+  <circle cx="464" cy="368" r="12" fill="#dcfce7"/>
+  <path d="M459 368 l4 4 l7 -8" fill="none" stroke="#16a34a" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="486" y="366" font-size="15.5" font-weight="600" fill="#0f172a">EN 16931 validation</text>
+  <text x="486" y="386" font-size="12.5" fill="#64748b">business rules BR-CO-13 / 14 / 15 · RFC 7807</text>
+
+  <!-- inner: generation -->
+  <rect x="438" y="422" width="304" height="70" rx="12" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5"/>
+  <g transform="translate(452,436)">
+    <rect width="24" height="24" rx="6" fill="#eef2ff"/>
+    <path d="M7 6 h7 l4 4 v8 a1 1 0 0 1 -1 1 h-10 a1 1 0 0 1 -1 -1 z" fill="none" stroke="#6366f1" stroke-width="1.8"/>
+  </g>
+  <text x="486" y="450" font-size="15.5" font-weight="600" fill="#0f172a">Factur-X generation</text>
+  <text x="486" y="470" font-size="12.5" fill="#64748b">PDF/A-3 + embedded CII XML · Mustang</text>
+
+  <!-- ============ Docker Compose envelope ============ -->
+  <rect x="386" y="196" width="1066" height="410" rx="20" fill="none" stroke="#2496ed" stroke-width="2" stroke-dasharray="9 7" opacity="0.75"/>
+  <g transform="translate(404,168)">
+    <rect width="44" height="44" rx="11" fill="#2496ed"/>
+    <g fill="#fff">
+      <rect x="12" y="19" width="5" height="5" rx="0.8"/>
+      <rect x="18" y="19" width="5" height="5" rx="0.8"/>
+      <rect x="24" y="19" width="5" height="5" rx="0.8"/>
+      <rect x="18" y="13" width="5" height="5" rx="0.8"/>
+      <rect x="24" y="13" width="5" height="5" rx="0.8"/>
+      <path d="M9 26 h27 c-0.5 6 -5 9 -12 9 c-9 0 -13 -5 -15 -8 c-0.6 -1 0 -1 0 -1 z"/>
+    </g>
+  </g>
+  <text x="456" y="196" font-size="15" font-weight="700" fill="#1d78c4">Docker Compose</text>
+  <text x="456" y="214" font-size="12" fill="#64748b">app · db · prometheus · grafana — healthchecks</text>
+
+  <!-- ============ PostgreSQL ============ -->
+  <g filter="url(#softShadow)">
+    <rect x="900" y="238" width="270" height="104" rx="14" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5"/>
+  </g>
+  <g transform="translate(922,264)">
+    <rect width="52" height="52" rx="13" fill="#336791"/>
+    <g transform="translate(3,2)">
+      <path d="M23 9 c9 0 15 6 15 15 c0 5 -1 8 -4 11 c-0.4 3 -2 6 -5 6 c-2 0 -3 -2 -3 -4 c-3 1 -6 1 -9 0 c-0.2 2 -1 4 -3 4 c-3 0 -4 -3 -4 -6 c-3 -3 -4 -6 -4 -11 c0 -9 6 -15 15 -15 z" fill="#fff"/>
+      <circle cx="18" cy="22" r="1.7" fill="#336791"/>
+      <circle cx="27" cy="22" r="1.7" fill="#336791"/>
+    </g>
+  </g>
+  <text x="990" y="284" font-size="18" font-weight="700" fill="#0f172a">PostgreSQL</text>
+  <text x="990" y="306" font-size="13" fill="#64748b">audit-trail persistence</text>
+  <text x="990" y="325" font-size="12" fill="#94a3b8">Flyway migrations · JPA</text>
+
+  <!-- ============ Prometheus ============ -->
+  <g filter="url(#softShadow)">
+    <rect x="900" y="434" width="270" height="104" rx="14" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5"/>
+  </g>
+  <g transform="translate(922,460)">
+    <rect width="52" height="52" rx="13" fill="#e6522c"/>
+    <path d="M26 9 c6 7 9 10 9 17 c0 7 -4 12 -9 12 c-5 0 -9 -5 -9 -12 c0 -4 1 -6 4 -9 c-0.3 4 1 5 2 5 c-2 -6 1 -10 3 -13 z" fill="#fff"/>
+    <rect x="15" y="39" width="22" height="4" rx="2" fill="#fff"/>
+  </g>
+  <text x="990" y="480" font-size="18" font-weight="700" fill="#0f172a">Prometheus</text>
+  <text x="990" y="502" font-size="13" fill="#64748b">metrics scraping</text>
+  <text x="990" y="521" font-size="12" fill="#94a3b8">Micrometer · /actuator/prometheus</text>
+
+  <!-- ============ Grafana ============ -->
+  <g filter="url(#softShadow)">
+    <rect x="1200" y="434" width="252" height="104" rx="14" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5"/>
+  </g>
+  <g transform="translate(1222,460)">
+    <rect width="52" height="52" rx="13" fill="#f46800"/>
+    <circle cx="26" cy="27" r="12" fill="none" stroke="#fff" stroke-width="3"/>
+    <path d="M26 16 c3 3 5 6 5 9 c0 3 -2 6 -5 6 c-3 0 -5 -3 -5 -6 c0 -2 1 -4 2 -5 c-0.2 2 1 2 1 2 c-1 -3 0 -4 2 -6 z" fill="#fff"/>
+  </g>
+  <text x="1290" y="480" font-size="18" font-weight="700" fill="#0f172a">Grafana</text>
+  <text x="1290" y="502" font-size="13" fill="#64748b">dashboards</text>
+  <text x="1290" y="521" font-size="12" fill="#94a3b8">auto-provisioned</text>
+
+  <!-- ============ ARROWS ============ -->
+  <!-- inputs -> app -->
+  <path d="M310 222 C 360 236, 372 320, 408 350" fill="none" stroke="#94a3b8" stroke-width="2.4" marker-end="url(#arrow)"/>
+  <path d="M310 342 C 360 360, 372 372, 408 384" fill="none" stroke="#94a3b8" stroke-width="2.4" marker-end="url(#arrow)"/>
+  <path d="M310 462 C 360 448, 372 424, 408 408" fill="none" stroke="#94a3b8" stroke-width="2.4" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+
+  <!-- app -> postgres -->
+  <path d="M770 320 C 830 300, 850 292, 898 290" fill="none" stroke="#94a3b8" stroke-width="2.6" marker-end="url(#arrow)"/>
+  <text x="812" y="286" font-size="12.5" font-weight="600" fill="#64748b" text-anchor="middle">persist</text>
+
+  <!-- app -> prometheus -->
+  <path d="M770 456 C 830 470, 850 480, 898 484" fill="none" stroke="#94a3b8" stroke-width="2.6" marker-end="url(#arrow)"/>
+  <text x="812" y="452" font-size="12.5" font-weight="600" fill="#64748b" text-anchor="middle">expose metrics</text>
+
+  <!-- prometheus -> grafana -->
+  <path d="M1170 486 L 1196 486" fill="none" stroke="#94a3b8" stroke-width="2.6" marker-end="url(#arrow)"/>
+  <text x="1185" y="474" font-size="12" font-weight="600" fill="#64748b" text-anchor="middle">query</text>
+
+  <!-- output note -->
+  <text x="590" y="576" font-size="12.5" fill="#94a3b8" text-anchor="middle">output: Factur-X PDF (200) · RFC 7807 problem+json (400 / 422)</text>
+</svg>
